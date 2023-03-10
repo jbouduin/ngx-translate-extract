@@ -1,9 +1,5 @@
-This is a copy of a great library by Biesbjerg.
+This is a copy of a great library by Biesbjerg with small adaptation to my own need.
 (But the original Beisbjerg's library is unfortunately no longer being developed)
-
-Following has been changed:
-* The __marker__ (@biesbjerg/ngx-translate-extract-marker) is now incorporated into this library
-* a __enumMarker__ has been added (a quick and dirty implementation that suits my needs)
 
 # ngx-translate-extract
 
@@ -81,24 +77,16 @@ If you want to extract strings that are not passed directly to `TranslateService
 Install marker function:
 
 ```bash
-npm install @biesbjerg/ngx-translate-extract-marker
+npm install @jbouduin/ngx-translate-extract-marker
 ```
 
 ```ts
-import { marker } from '@biesbjerg/ngx-translate-extract-marker';
+import { marker, enumMarker } from '@jbouduin/ngx-translate-extract-marker';
+import { ESomeEnum } from './some.enum';
 
 marker('Extract me');
+const prefix = enumMarker("The.Prefix.", ESomeEnum);
 ```
-
-You can alias the marker function if needed:
-
-```ts
-import { marker as _ } from '@biesbjerg/ngx-translate-extract-marker';
-
-_('Extract me');
-```
-
-_Note: `ngx-translate-extract` will automatically detect the import name_
 
 ### Commandline arguments
 

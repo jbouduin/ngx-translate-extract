@@ -2,16 +2,11 @@ import { tsquery } from '@phenomnomnominal/tsquery';
 
 import { ParserInterface } from './parser.interface.js';
 import { TranslationCollection } from '../utils/translation.collection.js';
-import { findFunctionCallExpressions, getStringsFromExpression, findEnumDeclaration } from '../utils/ast-helpers.js';
+import { findFunctionCallExpressions, getStringsFromExpression, findEnumDeclaration, getNamedImportAlias } from '../utils/ast-helpers.js';
 
-export type EnumObject = { [key: string]: number | string };
-export function marker<T extends string | string[]>(key: T): T {
-	return key;
-}
-
-export function enumMarker<T extends EnumObject>(prefix: string, _e: T): string {
-	return prefix;
-}
+const MARKER_MODULE_NAME = '@jbouduin/ngx-translate-extract-marker';
+const MARKER_IMPORT_NAME = 'marker';
+const ENUM_MARKER_IMPORT_NAME = 'enumMarker';
 
 export class MarkerParser implements ParserInterface {
 	public extract(source: string, filePath: string): TranslationCollection | null {
@@ -19,32 +14,37 @@ export class MarkerParser implements ParserInterface {
 
 		let collection: TranslationCollection = new TranslationCollection();
 
-		let callExpressions = findFunctionCallExpressions(sourceFile, 'marker');
-		callExpressions.forEach((callExpression) => {
-			const [firstArg] = callExpression.arguments;
+		const markerImportName = getNamedImportAlias(sourceFile, MARKER_MODULE_NAME, MARKER_IMPORT_NAME);
+		if (markerImportName) {
 
-			if (!firstArg) {
-				return;
-			}
-			const strings = getStringsFromExpression(firstArg);
-			// console.log(strings);
-			collection = collection.addKeys(strings);
-		});
+			const callExpressions = findFunctionCallExpressions(sourceFile, markerImportName);
+			callExpressions.forEach((callExpression) => {
+				const [firstArg] = callExpression.arguments;
 
-
-		callExpressions = findFunctionCallExpressions(sourceFile, 'enumMarker');
-		callExpressions.forEach((callExpression) => {
-			const [firstArg, secondArg] = callExpression.arguments;
-			if (!firstArg || !secondArg) {
-				return;
-			}
-			const enumd = findEnumDeclaration(sourceFile, secondArg);
-			const prefix = getStringsFromExpression(firstArg);
-			console.log(enumd);
-			enumd.forEach((enumKey: string) => {
-				collection = collection.addKeys([`${prefix}${enumKey}`]);
+				if (!firstArg) {
+					return;
+				}
+				const strings = getStringsFromExpression(firstArg);
+				collection = collection.addKeys(strings);
 			});
-		})
+
+		}
+
+		const enumMarkerImportName = getNamedImportAlias(sourceFile, MARKER_MODULE_NAME, ENUM_MARKER_IMPORT_NAME);
+		if (enumMarkerImportName) {
+			const callExpressions = findFunctionCallExpressions(sourceFile, 'enumMarker');
+			callExpressions.forEach((callExpression) => {
+				const [firstArg, secondArg] = callExpression.arguments;
+				if (!firstArg || !secondArg) {
+					return;
+				}
+				const enumd = findEnumDeclaration(sourceFile, secondArg);
+				const prefix = getStringsFromExpression(firstArg);
+				enumd.forEach((enumKey: string) => {
+					collection = collection.addKeys([`${prefix}${enumKey}`]);
+				});
+			})
+		}
 		return collection;
 	}
 }
