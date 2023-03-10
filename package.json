@@ -1,6 +1,6 @@
 {
 	"name": "@jbouduin/ngx-translate-extract",
-	"version": "8.0.3",
+	"version": "8.0.4",
 	"description": "Extract strings from projects using ngx-translate",
 	"author": "Kim Biesbjerg <kim@biesbjerg.com>",
 	"license": "MIT",
@@ -11,7 +11,8 @@
 		"clean": "rimraf ./dist",
 		"lint": "tslint --force './src/**/*.ts'",
 		"test": "cross-env TS_NODE_PROJECT=\"tsconfig.spec.json\" mocha -r ts-node/register tests/**/*.spec.ts",
-		"publish:next": "npm run build && npm publish --tag next --access public"
+		"prepare": "npm run build",
+		"publish": "npm publish --access public"
 	},
 	"devDependencies": {
 		"@types/braces": "^3.0.1",
